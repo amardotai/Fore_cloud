@@ -3,6 +3,7 @@ import apiKeys from "./apiKeys";
 import Clock from "react-live-clock";
 import loader from "./assets/WeatherIcons.gif";
 import ReactAnimatedWeather from "react-animated-weather";
+import Details from "./Details";
 
 const dateFormatter = (d) => {
   let months = [
@@ -42,7 +43,6 @@ const defaults = {
   size: 112,
   animate: true,
 };
-
 class Weather extends React.Component {
   state = {
     lat: undefined,
@@ -58,6 +58,9 @@ class Weather extends React.Component {
     sunrise: undefined,
     sunset: undefined,
     errorMsg: undefined,
+    visibility: undefined,
+    windSpeed: undefined,
+    query: "",
   };
 
   componentDidMount() {
@@ -97,6 +100,8 @@ class Weather extends React.Component {
 
     const data = await api_call.json();
 
+    console.log(data);
+
     this.setState({
       lat: lat,
       lon: lon,
@@ -106,6 +111,63 @@ class Weather extends React.Component {
       humidity: data.main.humidity,
       main: data.weather[0].main,
       country: data.sys.country,
+      windSpeed: data.wind["speed"],
+      visibility: data.visibility,
+    });
+
+    switch (this.state.main) {
+      case "Haze":
+        this.setState({ icon: "CLEAR_DAY" });
+        break;
+      case "Clouds":
+        this.setState({ icon: "CLOUDY" });
+        break;
+      case "Rain":
+        this.setState({ icon: "RAIN" });
+        break;
+      case "Snow":
+        this.setState({ icon: "SNOW" });
+        break;
+      case "Dust":
+        this.setState({ icon: "WIND" });
+        break;
+      case "Drizzle":
+        this.setState({ icon: "SLEET" });
+        break;
+      case "Fog":
+        this.setState({ icon: "FOG" });
+        break;
+      case "Smoke":
+        this.setState({ icon: "FOG" });
+        break;
+      case "Tornado":
+        this.setState({ icon: "WIND" });
+        break;
+      default:
+        this.setState({ icon: "CLEAR_DAY" });
+    }
+  };
+
+  getCityWeather = async (lat, lon) => {
+    const api_call = await fetch(
+      `${apiKeys.base}weather?q=${this.state.query}&units=metric&APPID=${apiKeys.key}`
+    );
+
+    const data = await api_call.json();
+
+    console.log(data);
+
+    this.setState({
+      lat: lat,
+      lon: lon,
+      city: data.name,
+      temperatureC: Math.round(data.main.temp),
+      temperatureF: Math.round(data.main.temp * 1.8 + 32),
+      humidity: data.main.humidity,
+      main: data.weather[0].main,
+      country: data.sys.country,
+      windSpeed: data.wind["speed"],
+      visibility: data.visibility,
     });
 
     switch (this.state.main) {
@@ -147,10 +209,23 @@ class Weather extends React.Component {
     });
   };
 
+  //   handleSearch = (e)=>{
+  //     setState({query:e});
+  //   }
+
   render() {
     if (this.state.temperatureC !== undefined) {
       return (
         <React.Fragment>
+          <div className="search-box">
+            <input
+              type="text"
+              className="search-bar"
+              placeholder="Search any city"
+              onChange={(e) => this.setState({ query: e.target.value })}
+            />
+            <button onClick={this.getCityWeather}>Submit</button>
+          </div>
           <div className="city">
             <div className="title">
               <h2>{this.state.city}</h2>
@@ -178,6 +253,13 @@ class Weather extends React.Component {
               </p>
             </div>
           </div>
+
+          <Details
+            visibility={this.state.visibility}
+            windSpeed={this.state.windSpeed}
+            temperature={this.state.temperatureC}
+            humidity={this.state.humidity}
+          />
         </React.Fragment>
       );
     } else {
