@@ -2,9 +2,8 @@ import React from "react";
 import apiKeys from "./apiKeys";
 import Clock from "react-live-clock";
 import loader from "./assets/WeatherIcons.gif";
+import logo from "./assets/magnifying-glass-solid.svg";
 import ReactAnimatedWeather from "react-animated-weather";
-import Details from "./Details";
-
 const dateFormatter = (d) => {
   let months = [
     "January",
@@ -209,74 +208,88 @@ class Weather extends React.Component {
     });
   };
 
-  //   handleSearch = (e)=>{
-  //     setState({query:e});
-  //   }
-
   render() {
     if (this.state.temperatureC !== undefined) {
       return (
-        <React.Fragment>
-          <div className="search-box">
-            <input
-              type="text"
-              className="search-bar"
-              placeholder="Search any city"
-              onChange={(e) => this.setState({ query: e.target.value })}
-            />
-            <button onClick={this.getCityWeather}>Submit</button>
-          </div>
-          <div className="city">
-            <div className="title">
-              <h2>{this.state.city}</h2>
-              <h3>{this.state.country}</h3>
+        <React.Fragment className="container">
+          <div className="front-screen">
+            <div className="logo">
+              <h1>Fore.cloud</h1>
             </div>
-            <div className="mb-icon">
-              {" "}
-              <ReactAnimatedWeather
-                icon={this.state.icon}
-                color={defaults.color}
-                size={defaults.size}
-                animate={defaults.animate}
-              />
-              <p>{this.state.main}</p>
-            </div>
-            <div className="date-time">
-              <div className="current-time">
-                <Clock format="HH:mm:ss" interval={1000} ticking={true} />
+            <div className="data-box">
+              <div className="temperature">
+                <h1>{this.state.temperatureC}°</h1>
               </div>
-              <div className="current-date">{dateFormatter(new Date())}</div>
-            </div>
-            <div className="temperature">
-              <p>
-                {this.state.temperatureC}°<span>C</span>
-              </p>
+              <div className="place">
+                <div className="city">
+                  <p>
+                    {this.state.city}, {this.state.country}
+                  </p>
+                </div>
+                <div className="date">
+                  <p>
+                    {<Clock format="HH:mm" interval={1000} ticking={true} />}-
+                    {dateFormatter(new Date())}
+                  </p>
+                </div>
+              </div>
+              <div className="symbol">
+                <ReactAnimatedWeather
+                  icon={this.state.icon}
+                  color={defaults.color}
+                  size={defaults.size}
+                  animate={defaults.animate}
+                />
+              </div>
             </div>
           </div>
+          <div className="side-screen">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Search any city"
+                onChange={(e) => this.setState({ query: e.target.value })}
+              />
+              <button onClick={this.getCityWeather}>
+                <img src={logo} />
+              </button>
+            </div>
 
-          <Details
-            visibility={this.state.visibility}
-            windSpeed={this.state.windSpeed}
-            temperature={this.state.temperatureC}
-            humidity={this.state.humidity}
-          />
+            <div className="details">
+              <h1>Weather Details</h1>
+              <div className="det-items">
+                <span>visibility</span>
+                <span>{this.state.visibility} mi</span>
+              </div>
+              <div className="det-items">
+                <span>Humidity</span>
+                <span>{this.state.humidity}%</span>
+              </div>
+              <div className="det-items">
+                <span>Temperature</span>
+                <span>{this.state.temperatureC}°</span>
+              </div>
+              <div className="det-items">
+                <span>wind Speed</span>
+                <span>{this.state.windSpeed} Km/h</span>
+              </div>
+            </div>
+          </div>
         </React.Fragment>
       );
     } else {
       return (
-        <React.Fragment>
-          <img
-            src={loader}
-            style={{ width: "50%", WebkitUserDrag: "none" }}
-            alt="loading symbol"
-          />
-          <h3 style={{ color: "white", fontSize: "22px", fontWeight: "600" }}>
-            Detecting your location
-          </h3>
-          <h3 style={{ color: "white", marginTop: "10px" }}>
-            Your current location wil be displayed on the App <br></br> & used
-            for calculating Real time weather.
-          </h3>
+        <React.Fragment className="loading-container">
+          <div className="loader">
+            <img src={loader} alt="loading symbol" />
+            <h3 style={{ color: "white", fontSize: "22px", fontWeight: "600" }}>
+              Detecting your location
+            </h3>
+            <h3 style={{ color: "white", marginTop: "10px" }}>
+              Your current location wil be displayed on the App <br></br> & used
+              for calculating Real time weather.
+            </h3>
+          </div>
         </React.Fragment>
       );
     }
